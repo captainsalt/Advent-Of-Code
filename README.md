@@ -1,3 +1,3 @@
 # Advent-Of-Code
 
-My [Advent of Code](https://adventofcode.com/) solutions for 2021
+My [Advent of Code](https://adventofcode.com/2021/about) solutions for 2021
