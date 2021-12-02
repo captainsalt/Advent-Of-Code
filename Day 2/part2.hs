@@ -11,11 +11,11 @@ getDepth :: [Command] -> Position
 getDepth = foldl applyCommand $ Position {horizontal = 0, depth = 0, aim = 0}
   where
     applyCommand :: Position -> Command -> Position
-    applyCommand start (cmd, val)
-      | cmd == "forward" = start {horizontal = horizontal start + val, depth = depth start + aim start * val}
-      | cmd == "up" = start {aim = aim start - val}
-      | cmd == "down" = start {aim = aim start + val}
-      | otherwise = start
+    applyCommand initPos (cmd, val)
+      | cmd == "forward" = initPos {horizontal = horizontal initPos + val, depth = depth initPos + aim initPos * val}
+      | cmd == "up" = initPos {aim = aim initPos - val}
+      | cmd == "down" = initPos {aim = aim initPos + val}
+      | otherwise = initPos
 
 listToTuple :: [[Char]] -> ([Char], Integer)
 listToTuple (cmd : val : _) = (cmd, read val :: Integer)
