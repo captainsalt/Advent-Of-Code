@@ -12,12 +12,12 @@ type Binary = [Bit]
 groupColumns :: [Binary] -> [Binary]
 groupColumns = run []
   where
-    run :: [[Binary]] -> [Binary] -> [Binary]
+    run :: [Binary] -> [Binary] -> [Binary]
     run acc binaryList
-      | head binaryList == "" = reverse . concat $ acc
+      | head binaryList == "" = reverse acc
       | otherwise =
         let column = map head binaryList
-            newAcc = [column] : acc
+            newAcc = column : acc
             newBinaryList = map tail binaryList
          in run newAcc newBinaryList
 
