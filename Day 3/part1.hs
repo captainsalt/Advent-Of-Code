@@ -1,5 +1,5 @@
 import Data.Bool (bool)
-import Data.Char
+import Data.Char (digitToInt)
 
 data Rate = Gamma | Epsilon
 

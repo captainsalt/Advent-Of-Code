@@ -1,8 +1,6 @@
 import Data.Bifunctor (Bifunctor (second))
 import Data.Bool (bool)
 import Data.Char (digitToInt)
-import Data.Maybe ()
-import qualified Data.Maybe
 
 data Rating = OxygenGenerator | C02Scrubber
 
