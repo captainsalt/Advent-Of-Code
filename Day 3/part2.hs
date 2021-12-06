@@ -53,6 +53,4 @@ main = do
   let oxygen = diagnosticData OxygenGenerator fileContent
   let c02 = diagnosticData C02Scrubber fileContent
 
-  print $ (\x -> (x, binaryToInt x)) oxygen
-  print $ (\x -> (x, binaryToInt x)) c02
   print $ product $ map binaryToInt [oxygen, c02]
