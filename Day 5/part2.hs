@@ -26,14 +26,14 @@ parseLines :: [String] -> [Line]
 parseLines = map parseLine
 
 drawLine :: Line -> [Coordinate]
-drawLine line = draw (start line) line
+drawLine line = draw (start line)
   where
     Line {start = c1@(x1, y1), end = c2@(x2, y2)} = line
 
-    draw :: Coordinate -> Line -> [Coordinate]
-    draw current line
+    draw :: Coordinate -> [Coordinate]
+    draw current
       | current == c2 = [c1]
-      | otherwise = updatedCurrent : draw updatedCurrent line
+      | otherwise = updatedCurrent : draw updatedCurrent
       where
         xDirection = bool (-1) 1 $ x1 < x2
         yDirection = bool (-1) 1 $ y1 < y2
