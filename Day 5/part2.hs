@@ -54,7 +54,8 @@ main = do
   fileContent <- lines <$> readFile "input.txt"
 
   print $
-    length . filter ((<) 1 . length)
+    length
+      . filter ((<) 1 . length)
       . group
       . sort
       . drawLines
