@@ -1,18 +1,33 @@
 import Data.Bifunctor (Bifunctor (bimap))
 import Data.Bool (bool)
-import Data.List (group, sort, sortBy, sortOn, unfoldr)
+import Data.List (group, groupBy, sort, sortBy, sortOn, unfoldr)
 
-type Days = Int
+type Days = Integer
 
-type Timer = Int
+type Timer = Integer
 
-type SpawnCount = Int
+type SpawnCount = Integer
 
 data Fish = Fish
-  { population :: Int,
+  { population :: Integer,
     spawnTimer :: Timer
   }
-  deriving (Show, Eq)
+  deriving (Eq)
+
+instance Show Fish where
+  show Fish {population = pop, spawnTimer = timer} =
+    "Timer: "
+      <> show timer
+      <> " Population: "
+      <> show pop
+      <> "\n"
+
+addFish :: Fish -> Fish -> Fish
+addFish Fish {population = aPop, spawnTimer = aTimer} Fish {population = bPop, spawnTimer = bTimer} =
+  Fish {population = aPop + bPop, spawnTimer = aTimer}
+
+-- combineFish :: [Fish] -> [Fish]
+combineFish = map (foldl1 addFish) . groupBy (\(f1, f2) -> (spawnTimer f1) == (spawnTimer f2)) . sortOn spawnTimer
 
 parseFish :: String -> [Fish]
 parseFish = timerToFish . unfoldr parse
@@ -22,15 +37,15 @@ parseFish = timerToFish . unfoldr parse
 
     timerToFish = map listToFish . group . sort
       where
-        listToFish list = Fish {population = length list, spawnTimer = head list}
+        listToFish list = Fish {population = toInteger $ length list, spawnTimer = head list}
 
-spawnFish :: Int -> [Fish] -> [Fish]
+spawnFish :: Integer -> [Fish] -> [Fish]
 spawnFish quantity fish = case quantity of
   0 -> fish
   _ -> Fish {population = quantity, spawnTimer = 8} : fish
 
 simulateDay :: [Fish] -> [Fish]
-simulateDay = run 0
+simulateDay = combineFish . run 0
   where
     run :: SpawnCount -> [Fish] -> [Fish]
     run spawnCount [] = spawnFish spawnCount []
@@ -41,14 +56,14 @@ simulateDay = run 0
         timerUpdate :: (Timer, SpawnCount)
         timerUpdate = bool (timer - 1, 0) (6, pop) $ timer - 1 == -1
 
-simulate :: Days -> [Fish] -> Int
-simulate 0 fish = sum . map population $ fish
-simulate days fish = simulate (days - 1) (simulateDay fish)
+-- simulate :: Days -> [Fish] -> Integer
+simulate 0 fish = combineFish fish
+simulate days fish = combineFish $ simulate (days - 1) (combineFish $ simulateDay fish)
 
 main :: IO ()
 main = do
   fileContent <- readFile "input.txt"
 
   print $
-    simulate 256 $
+    simulate 10 $
       parseFish fileContent
