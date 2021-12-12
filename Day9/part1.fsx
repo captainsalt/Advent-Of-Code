@@ -1,78 +1,76 @@
-module part1
-
 open System.IO
 
-type FloorSpace = LowPoint of int | Point of int
-type Floor = FloorSpace List List
+type FloorSpace =
+    | LowPoint of int
+    | Point of int
 
+type Floor = FloorSpace seq seq
 
-let listTofloorSpace = List.map (List.map Point)
+let listTofloorSpace = Seq.map (Seq.map Point)
 
+let getValue =
+    function
+    | (LowPoint n) -> n
+    | (Point n) -> n
 
-let getValue = function 
-| (LowPoint n) -> n
-| (Point n) -> n
-
-
-let getFloorSpace (floor: Floor) rowIndex elemIndex  = 
+let getFloorSpace (floor: Floor) rowIndex elemIndex =
     let (>>=) m f = Option.bind f m
 
-    if rowIndex < 0 || elemIndex < 0 then None 
-    else List.tryItem rowIndex floor >>= List.tryItem elemIndex
-
+    if rowIndex < 0 || elemIndex < 0 then
+        None
+    else
+        Seq.tryItem rowIndex floor
+        >>= Seq.tryItem elemIndex
 
 let getAdjacent (floor: Floor) floorRow index =
     let floorItem = getFloorSpace floor
 
     [ floorItem floorRow (index + 1) // Look right
-    ; floorItem floorRow (index - 1) // Look left
-    ; floorItem (floorRow + 1) index // Look above
-    ; floorItem (floorRow - 1) index ] // Look below
-    |> List.choose id
+      floorItem floorRow (index - 1) // Look left
+      floorItem (floorRow + 1) index // Look above
+      floorItem (floorRow - 1) index ] // Look below
+    |> Seq.choose id
 
-
-let classifyPoint (floor: Floor) rowIndex elemIndex = 
-    match getFloorSpace floor rowIndex elemIndex with 
-    | None -> None 
+let classifyPoint (floor: Floor) rowIndex elemIndex =
+    match getFloorSpace floor rowIndex elemIndex with
+    | None -> None
     | Some floorSpace ->
         let value = getValue floorSpace
-        let isLowest =     
-            getAdjacent floor rowIndex elemIndex 
-            |> List.forall(fun fs -> getValue fs > value)
-        
-        if isLowest then Some (LowPoint value)
-        else Some (Point value)
 
+        let isLowest =
+            getAdjacent floor rowIndex elemIndex
+            |> Seq.forall (fun fs -> getValue fs > value)
 
-let isLowPoint = function 
-| LowPoint _ -> true
-| _ -> false
+        if isLowest then
+            LowPoint value |> Some
+        else
+            Point value |> Some
 
+let isLowPoint =
+    function
+    | LowPoint _ -> true
+    | _ -> false
 
-let parseInput path = 
+let parseInput path =
     File.ReadAllLines(path)
-    |> Array.toList
-    |> List.map 
-        (fun str -> 
-            Array.map (string >> int) (str.ToCharArray()) 
-            |> Array.toList)
+    |> Seq.map (fun str -> Seq.map (string >> int) (str.ToCharArray()))
 
+let classifyPoints (floor: Floor) =
+    let classifyPoint = classifyPoint floor
 
-let classifyPoints (floor: Floor)  = 
-    let height = floor.Length
-    let length = floor |> List.head |> List.length
-
-    [ for y in [0..height - 1] ->
-        [ for x in [0..length - 1] ->
-            Option.get (classifyPoint floor y x) ] ]
-
+    floor
+    |> Seq.mapi (fun rowIndex row ->
+        row 
+        |> Seq.mapi (fun colIndex _ -> classifyPoint rowIndex colIndex))
+    |> Seq.map (Seq.choose id)
 
 let threatLevel (floor: Floor) =
-    floor 
-    |> List.collect (List.filter (isLowPoint))
-    |> List.map (getValue >> (+) 1)
-    |> List.reduce (+)
+    floor
+    |> classifyPoints
+    |> Seq.collect (Seq.filter (isLowPoint))
+    |> Seq.map (getValue >> (+) 1)
+    |> Seq.reduce (+)
 
-
-listTofloorSpace >> classifyPoints >> threatLevel <| parseInput "input.txt" |> printfn "%i"
-
+listTofloorSpace >> threatLevel
+<| parseInput "input.txt"
+|> printfn "%i"
