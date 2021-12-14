@@ -17,7 +17,10 @@ let listTofloorSpace =
     Seq.mapi (fun rowIndex row -> 
         row 
         |> Seq.mapi (fun colIndex value  ->  
-            { row = rowIndex; col = colIndex; value = value; floorType = Undefined} ))
+            { row = rowIndex; 
+            col = colIndex; 
+            value = value; 
+            floorType = if value = 9 then High else Undefined } ))
 
 let getFloorSpace (floor: Floor) floorSpace =
     Seq.tryItem floorSpace.row floor
